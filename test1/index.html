@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Grist Invoice</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+
+    <script src="invoice.js?ver=11"></script>
+    <script src="exampleData.js"></script>
+
+    <link rel="stylesheet" href="invoice.css?ver=19">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <div class="status" v-if="status">
+        <template v-if="status === 'waiting'">
+          <p>Waiting for data...</p>
+          <ul>
+            <li v-bind:class="[tableConnected ? 'done' : '']">I need <b>read table</b> access.</li>
+            <li v-bind:class="[haveRows ? 'done' : '']">I need at least one row of data.</li>
+            <li v-bind:class="[rowConnected ? 'done' : '']">I need <b>Select By</b> set.</li>
+          </ul>
+          <p>Examples:</p>
+          <ul>
+            <li><a class="button" href="index.html?demo=1">A filled out invoice</a></li>
+            <li><a class="button" href="index.html?labels=1">A labelled invoice</a></li>
+          </ul>
+        </template>
+        <template v-else>
+          {{ status }}
+        </template>
+      </div>
+      <main v-if="invoice">
+        <header class="invoice-header">
+          <div class="header-details">
+            <div class="logo">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <path d="M50 0 C77.614 0 100 22.386 100 50 C100 77.614 77.614 100 50 100 C22.386 100 0 77.614 0 50 C0 22.386 22.386 0 50 0z" fill="#007bff"/>
+                <path d="M30 30 L30 70 L70 70 L70 30 L30 30 M40 40 L40 60 L60 60 L60 40 L40 40" fill="#fff"/>
+              </svg>
+            </div>
+            <div class="invoicer-info">
+              <div v-for="business in (invoice.Invoicer ? [invoice.Invoicer] : [])">
+                <template v-if="typeof(business) === 'string'">
+                  <p class="address">{{ business }}</p>
+                </template>
+                <template v-else>
+                  <h2 class="company-name">{{ business.Name }}</h2>
+                  <address>
+                    {{ business.Street1 }}<br>
+                    <template v-if="business.Street2">
+                      {{ business.Street2 }}<br>
+                    </template>
+                    {{ business.City }} {{ business.State }} {{ business.Zip }}<br>
+                    <template v-if="business.Country">
+                      {{ business.Country }}<br>
+                    </template>
+                  </address>
+                  <p v-if="business.Email" class="contact-info-line">Email: {{ business.Email }}</p>
+                  <p v-if="business.Phone" class="contact-info-line">Phone: {{ business.Phone }}</p>
+                </template>
+              </div>
+            </div>
+            <div class="invoice-logo-cert">
+              <img src="https://via.placeholder.com/100x100.png?text=Certified+Services" alt="Certified Services">
+            </div>
+          </div>
+          <div class="header-line"></div>
+        </header>
+
+        <section class="invoice-meta-client">
+          <div class="invoice-meta-info">
+            <div class="invoice-info-block">
+              <p>Ponuda br. 25/072</p>
+              <p class="sub-heading">Ponuda za popravka na lift</p>
+            </div>
+            <div class="invoice-info-block-right">
+              <p>Скопје, {{ invoice.Issued | asDate }}</p>
+            </div>
+          </div>
+
+          <div class="client-info">
+            <div class="to-label">До:</div>
+            <div class="client-details" v-for="business in (invoice.Client ? [invoice.Client] : [])">
+              <template v-if="typeof(business) === 'string'">
+                <p>{{ business }}</p>
+              </template>
+              <template v-else>
+                <h2 class="client-name">{{ business.Name }}</h2>
+                <address>
+                  <template v-if="business.Street1">
+                    {{ business.Street1 }}
+                  </template>
+                  <template v-if="business.Street2">
+                    <br>{{ business.Street2 }}
+                  </template>
+                  <br>{{ business.City }} {{ business.State }} {{ business.Zip }}
+                  <template v-if="business.Country">
+                    <br>{{ business.Country }}
+                  </template>
+                </address>
+              </template>
+            </div>
+          </div>
+        </section>
+
+        <table class="items-table">
+          <thead>
+            <tr v-if="!Array.isArray(invoice.Items)">
+              <th>Опис</th>
+              <th class="money">Вкупна вредност</th>
+            </tr>
+            <tr v-else>
+              <th>РБ</th>
+              <th>Назив</th>
+              <th>Мерка</th>
+              <th>Количина</th>
+              <th class="money">Цена</th>
+              <th class="money">Вредност без ДДВ</th>
+              <th class="money">Данок %</th>
+              <th class="money">Данок</th>
+              <th class="money">Вкупна вредност</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="!Array.isArray(invoice.Items)">
+              <td>{{ invoice.Items }}</td>
+              <td class="money">{{ invoice.Total | currency }}</td>
+            </tr>
+            <tr v-else v-for="(item, index) in invoice.Items">
+              <td>{{ index + 1 }}</td>
+              <td class="item-description">{{ item.Description }}</td>
+              <td>бр.</td>
+              <td>{{ item.Quantity }}</td>
+              <td class="money">{{ item.Price | currency }}</td>
+              <td class="money">{{ item.Subtotal | currency }}</td>
+              <td class="money">18%</td>
+              <td class="money">{{ item.Taxes | currency }}</td>
+              <td class="money">{{ item.Total | currency }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="total-label">Вкупно:</td>
+              <td class="money">{{ invoice.Subtotal | currency }}</td>
+              <td class="money">18%</td>
+              <td class="money">{{ invoice.Taxes | currency }}</td>
+              <td class="money">{{ invoice.Total | currency }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="paid" v-if="invoice.Paid">PAID</div>
+      </main>
+
+      <footer class="invoice-footer" v-if="invoice">
+        <div class="print">
+          <a href="javascript:window.print()">Print</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
