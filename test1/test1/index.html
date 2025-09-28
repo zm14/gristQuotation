@@ -59,7 +59,7 @@
             <div class="info" v-if="invoice.Due"><div class="meta date-tag">Рок на плаќање</div> {{ invoice.Due | asDate }}</div>
           </div>
           
-          <div class="supplier">
+          <!--<div class="supplier">
             <div v-for="business in (invoice.Invoicer ? [invoice.Invoicer] : [])">
               <template v-if="typeof(business) === 'string'">
                 <div class="address newlined">{{ business }}</div>
@@ -87,10 +87,8 @@
                 </template>
               </template>
             </div>
-          </div>
-        </div>
-        
-        <div class="client" v-for="business in (invoice.Client ? [invoice.Client] : [])">
+          </div>-->
+          <div class="client" v-for="business in (invoice.Client ? [invoice.Client] : [])">
           <div class="title">Коминтент</div>
           <div class="details">
             <template v-if="typeof(business) === 'string'">
@@ -111,6 +109,9 @@
             </template>
           </div>
         </div>
+        </div>
+        
+
 
         <table class="items">
           <template v-if="!Array.isArray(invoice.Items)">
