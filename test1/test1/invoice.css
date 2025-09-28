@@ -19,6 +19,7 @@ body {
 .logo {
   width: 75px;
   height: auto;
+  margin-right: 20px;
 }
 .textHeader{
   font-size: 0.7em;
@@ -141,13 +142,13 @@ div.top, div.summary {
 }
 
 div.summary .total {
-  background: #1e40af;
+
   color: #fff;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1.3em;
   padding: 16px 28px;
-  box-shadow: 0 4px 12px rgba(30,64,175,0.3);
+/*   box-shadow: 0 4px 12px rgba(30,64,175,0.3); */
 }
 
 div.summary .part {
@@ -187,8 +188,8 @@ div.instructions, .newlined, p.note {
 
 div.paid {
   position: absolute;
-  left: 40%;
-  top: 20px;
+  left: 55%;
+  top: 30px;
   color: #22c55e; /* green for paid */
   background: #d1fae5;
   border: 3px dashed #22c55e;

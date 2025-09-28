@@ -54,9 +54,9 @@
             <div class="header">
               <div class="meta title">Понуда</div>
             </div>
-            <div class="info"><span class="meta">Invoice Number</span> #{{ invoice.Number }}</div>
-            <div class="info" v-if="invoice.Issued"><div class="meta date-tag">Issued</div> {{ invoice.Issued | asDate }}</div>
-            <div class="info" v-if="invoice.Due"><div class="meta date-tag">Due</div> {{ invoice.Due | asDate }}</div>
+            <div class="info"><span class="meta">Број на понуда</span> #{{ invoice.Number }}</div>
+            <div class="info" v-if="invoice.Issued"><div class="meta date-tag">Датум</div> {{ invoice.Issued | asDate }}</div>
+            <div class="info" v-if="invoice.Due"><div class="meta date-tag">Рок на плаќање</div> {{ invoice.Due | asDate }}</div>
           </div>
           
           <div class="supplier">
@@ -91,7 +91,7 @@
         </div>
         
         <div class="client" v-for="business in (invoice.Client ? [invoice.Client] : [])">
-          <div class="title">Client</div>
+          <div class="title">Коминтент</div>
           <div class="details">
             <template v-if="typeof(business) === 'string'">
               <div class="newlined">{{ business }}</div>
@@ -125,13 +125,15 @@
           </template>
           <template v-else>
             <tr>
-              <th>Description</th>
-              <th class="money">Unit Price</th>
-              <th class="number">Quantity</th>
-              <th class="money">Total</th>
+              <th>Назив</th>
+              <th class="text">Мерка</th>
+              <th class="money">Цена</th>
+              <th class="number">Количина</th>
+              <th class="money">Износ</th>
             </tr>
             <tr v-for="item in invoice.Items">
               <td>{{ item.Description }}</td>
+              <td class="text">{{ item.merka}}</td>
               <td class="money">{{ item.Price | currency }}</td>
               <td class="number">{{ item.Quantity }}</td>
               <td class="money">{{ item.Total | currency }}</td>
@@ -141,19 +143,19 @@
 
         <div class="summary">
           <div class="part">
-            <div class="title">Subtotal</div>
+            <div class="title">Износ без ДДВ</div>
             <div class="details">{{ invoice.Subtotal | currency }}</div>
           </div>
-          <div class="part">
+      <!--    <div class="part">
             <div class="title">Deduction</div>
             <div class="details">{{ invoice.Deduction | currency }}</div>
-          </div>
+          </div>-->
           <div class="part">
-            <div class="title">Taxes</div>
+            <div class="title">ДДВ</div>
             <div class="details">{{ invoice.Taxes | currency }}</div>
           </div>
           <div class="total">
-            <div class="title">Total</div>
+            <div class="title">Вкупно</div>
             <div class="details">{{ invoice.Total | currency }}</div>
           </div>
         </div>
